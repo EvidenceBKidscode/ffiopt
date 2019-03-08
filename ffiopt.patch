@@ -1,0 +1,53 @@
+From 3d0ff67ac7b06a1efc6961fd8ee09a8f7632c389 Mon Sep 17 00:00:00 2001
+From: Pierre-Yves Rollo <dev@pyrollo.com>
+Date: Fri, 8 Mar 2019 10:11:49 +0100
+Subject: [PATCH] Added get_data_ptr to lua voxelmanip
+
+---
+ src/script/lua_api/l_vmanip.cpp | 10 ++++++++++
+ src/script/lua_api/l_vmanip.h   |  1 +
+ 2 files changed, 11 insertions(+)
+
+diff --git a/src/script/lua_api/l_vmanip.cpp b/src/script/lua_api/l_vmanip.cpp
+index c92983bd..4015bdb0 100644
+--- a/src/script/lua_api/l_vmanip.cpp
++++ b/src/script/lua_api/l_vmanip.cpp
+@@ -83,6 +83,15 @@ int LuaVoxelManip::l_get_data(lua_State *L)
+ 	return 1;
+ }
+ 
++int LuaVoxelManip::l_get_data_ptr(lua_State *L)
++{
++	NO_MAP_LOCK_REQUIRED;
++	LuaVoxelManip *o = checkobject(L, 1);
++	MMVManip *vm = o->vm;
++	lua_pushinteger(L, (long int)vm->m_data);
++	return 1;
++}
++
+ int LuaVoxelManip::l_set_data(lua_State *L)
+ {
+ 	NO_MAP_LOCK_REQUIRED;
+@@ -461,6 +470,7 @@ const char LuaVoxelManip::className[] = "VoxelManip";
+ const luaL_Reg LuaVoxelManip::methods[] = {
+ 	luamethod(LuaVoxelManip, read_from_map),
+ 	luamethod(LuaVoxelManip, get_data),
++	luamethod(LuaVoxelManip, get_data_ptr),
+ 	luamethod(LuaVoxelManip, set_data),
+ 	luamethod(LuaVoxelManip, get_node_at),
+ 	luamethod(LuaVoxelManip, set_node_at),
+diff --git a/src/script/lua_api/l_vmanip.h b/src/script/lua_api/l_vmanip.h
+index 15ab9eef..3e63d956 100644
+--- a/src/script/lua_api/l_vmanip.h
++++ b/src/script/lua_api/l_vmanip.h
+@@ -43,6 +43,7 @@ class LuaVoxelManip : public ModApiBase
+ 
+ 	static int l_read_from_map(lua_State *L);
+ 	static int l_get_data(lua_State *L);
++	static int l_get_data_ptr(lua_State *L);
+ 	static int l_set_data(lua_State *L);
+ 	static int l_write_to_map(lua_State *L);
+ 
+-- 
+2.20.1
+
