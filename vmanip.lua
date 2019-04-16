@@ -2,8 +2,6 @@ ffiopt.ffi.cdef[[
 typedef struct MapData { uint16_t param0; uint8_t param1; uint8_t param2; } mapdata_t;
 ]]
 
--- TODO: Protect pointer for getting outside map data
-
 local data_metatable = {
 	__index = function(tbl, ix)
 			if ix > 0 and ix <= tbl.volume then
@@ -29,6 +27,7 @@ local function get_data(self, target)
 	data.volume = area:getVolume()
 	data.ptr = ffiopt.ffi.cast('mapdata_t*', self:get_data_ptr())
 	setmetatable(data, data_metatable)
+	return data
 end
 
 local function get_voxel_manip(p1, p2)

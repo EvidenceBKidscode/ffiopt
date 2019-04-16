@@ -35,3 +35,4 @@ end
 minetest.log("action", string.format("[%s] FFI library loaded.", ffiopt.name))
 
 dofile(ffiopt.path..'/vmanip.lua')
+dofile(ffiopt.path..'/perlinnoise.lua')
