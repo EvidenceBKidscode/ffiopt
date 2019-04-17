@@ -1,7 +1,7 @@
 From 3d0ff67ac7b06a1efc6961fd8ee09a8f7632c389 Mon Sep 17 00:00:00 2001
 From: Pierre-Yves Rollo <dev@pyrollo.com>
 Date: Fri, 8 Mar 2019 10:11:49 +0100
-Subject: [PATCH] Added get_data_ptr to lua voxelmanip
+Subject: [PATCH 1/2] Added get_data_ptr to lua voxelmanip
 
 ---
  src/script/lua_api/l_vmanip.cpp | 10 ++++++++++
@@ -47,6 +47,83 @@ index 15ab9eef..3e63d956 100644
 +	static int l_get_data_ptr(lua_State *L);
  	static int l_set_data(lua_State *L);
  	static int l_write_to_map(lua_State *L);
+ 
+-- 
+2.20.1
+
+
+From 48ae374f9b326071b73cc5c94a1bcb48f0002ddc Mon Sep 17 00:00:00 2001
+From: Pierre-Yves Rollo <dev@pyrollo.com>
+Date: Tue, 16 Apr 2019 16:14:12 +0200
+Subject: [PATCH 2/2] Exposed noise results pointer and size to Lua API
+
+---
+ src/script/lua_api/l_noise.cpp | 24 +++++++++++++++++++++++-
+ src/script/lua_api/l_noise.h   |  3 +++
+ 2 files changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/src/script/lua_api/l_noise.cpp b/src/script/lua_api/l_noise.cpp
+index e38d319f..bb22ebec 100644
+--- a/src/script/lua_api/l_noise.cpp
++++ b/src/script/lua_api/l_noise.cpp
+@@ -299,6 +299,27 @@ int LuaPerlinNoiseMap::l_calc_3d_map(lua_State *L)
+ 	return 0;
+ }
+ 
++int LuaPerlinNoiseMap::l_get_result_size(lua_State *L)
++{
++	NO_MAP_LOCK_REQUIRED;
++
++	LuaPerlinNoiseMap *o = checkobject(L, 1);
++	Noise *n = o->noise;
++
++	lua_pushinteger(L, n->sx* n->sy*n->sz);
++	return 1;
++}
++
++int LuaPerlinNoiseMap::l_get_result_ptr(lua_State *L)
++{
++	NO_MAP_LOCK_REQUIRED;
++
++	LuaPerlinNoiseMap *o = checkobject(L, 1);
++	Noise *n = o->noise;
++
++	lua_pushinteger(L, (long int)n->result);
++	return 1;
++}
+ 
+ int LuaPerlinNoiseMap::l_get_map_slice(lua_State *L)
+ {
+@@ -324,7 +345,6 @@ int LuaPerlinNoiseMap::l_get_map_slice(lua_State *L)
+ 	return 1;
+ }
+ 
+-
+ int LuaPerlinNoiseMap::create_object(lua_State *L)
+ {
+ 	NoiseParams np;
+@@ -397,6 +417,8 @@ luaL_Reg LuaPerlinNoiseMap::methods[] = {
+ 	luamethod_aliased(LuaPerlinNoiseMap, get_3d_map,      get3dMap),
+ 	luamethod_aliased(LuaPerlinNoiseMap, get_3d_map_flat, get3dMap_flat),
+ 	luamethod_aliased(LuaPerlinNoiseMap, calc_3d_map,     calc3dMap),
++	luamethod_aliased(LuaPerlinNoiseMap, get_result_ptr,  get_result_ptr),
++	luamethod_aliased(LuaPerlinNoiseMap, get_result_size, get_result_size),
+ 	luamethod_aliased(LuaPerlinNoiseMap, get_map_slice,   getMapSlice),
+ 	{0,0}
+ };
+diff --git a/src/script/lua_api/l_noise.h b/src/script/lua_api/l_noise.h
+index 9f50dfd3..e0c5281a 100644
+--- a/src/script/lua_api/l_noise.h
++++ b/src/script/lua_api/l_noise.h
+@@ -79,6 +79,9 @@ class LuaPerlinNoiseMap : public ModApiBase
+ 	static int l_calc_3d_map(lua_State *L);
+ 	static int l_get_map_slice(lua_State *L);
+ 
++	static int l_get_result_size(lua_State *L);
++	static int l_get_result_ptr(lua_State *L);
++
+ public:
+ 	LuaPerlinNoiseMap(NoiseParams *np, s32 seed, v3s16 size);
  
 -- 
 2.20.1
